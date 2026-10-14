@@ -1,0 +1,209 @@
+{
+ "timestamp": 3890741778,
+ "image_size": 177623040,
+ "identity": "525344536e8d5abc6643a1f850ac828584fbf1c801000000",
+ "functions": {
+  "MEDIA_OPEN": {
+   "name": "UMediaPlayer::OpenFile",
+   "rva": 86042816,
+   "code": "48895c2408574883ec20488bfa488bd9"
+  },
+  "MEDIA_CLOSE": {
+   "name": "UMediaPlayer::Close",
+   "rva": 33376260,
+   "code": "40534883ec20488bd9488b8950010000"
+  },
+  "MEDIA_RATE": {
+   "name": "UMediaPlayer::SetRate",
+   "rva": 86052164,
+   "code": "488b8950010000e9000fffff48895c24"
+  },
+  "MEDIA_LOOP": {
+   "name": "UMediaPlayer::SetLooping",
+   "rva": 32104492,
+   "code": "48895c24084889742410574883ec2065"
+  },
+  "MEDIA_TIME": {
+   "name": "UMediaPlayer::GetTime",
+   "rva": 86038696,
+   "code": "40534883ec20488b8950010000488bda"
+  },
+  "MEDIA_DURATION": {
+   "name": "UMediaPlayer::GetDuration",
+   "rva": 86032476,
+   "code": "40534883ec20488b8950010000488bda"
+  },
+  "MEDIA_PLAYING": {
+   "name": "UMediaPlayer::IsPlaying",
+   "rva": 86041008,
+   "code": "488b8950010000e9b4f2feff488b8950"
+  },
+  "MEDIA_PREPARING": {
+   "name": "UMediaPlayer::IsPreparing",
+   "rva": 86041020,
+   "code": "488b8950010000e928f3feff40534883"
+  },
+  "MEDIA_SEEK": {
+   "name": "FMediaPlayerFacade::Seek",
+   "rva": 85987572,
+   "code": "48895c2418488974242055574156488b"
+  },
+  "MEDIA_SEEKING": {
+   "name": "FMediaPlayerFacade::IsSeeking",
+   "rva": 85972472,
+   "code": "40534883ec20488bd94881c100030000"
+  },
+  "TEXTURE_UPDATE": {
+   "name": "UMediaTexture::UpdateResource",
+   "rva": 23008640,
+   "code": "488b0133d248ffa03003000048895c24"
+  },
+  "TEXTURE_SET": {
+   "name": "UMediaTexture::SetMediaPlayer",
+   "rva": 86051536,
+   "code": "4883ec380f57c04c8d442420f30f7f44"
+  },
+  "SOUND_SET": {
+   "name": "UMediaSoundComponent::SetMediaPlayer",
+   "rva": 86051160,
+   "code": "48895c2408574883ec204533c0488bda"
+  },
+  "SOUND_UPDATE": {
+   "name": "UMediaSoundComponent::UpdatePlayer",
+   "rva": 86057744,
+   "code": "48895c24185556574154415541564157"
+  },
+  "SOUND_CREATE": {
+   "name": "UMediaSoundComponent::CreateSoundGenerator",
+   "rva": 86027292,
+   "code": "48895c24104889742418555741544156"
+  },
+  "GEN_AUDIO": {
+   "name": "FMediaSoundGenerator::OnGenerateAudio",
+   "rva": 86041516,
+   "code": "48895c24104489442418555657415441"
+  },
+  "GEN_END": {
+   "name": "FMediaSoundGenerator::OnEndGenerate",
+   "rva": 86041396,
+   "code": "48895c2408574883ec304883c120488d"
+  },
+  "SHARED_RELEASE": {
+   "name": "TSharedPtr<ISoundGenerator,1>::~TSharedPtr<ISoundGenerator,1>",
+   "rva": 20491864,
+   "code": "40534883ec20488b59084885db7427ba"
+  },
+  "FMOD_GET": {
+   "name": "IFMODStudioModule::Get",
+   "rva": 17440036,
+   "code": "4883ec2841b801000000488d15dbdd8b"
+  },
+  "FMOD_SYSTEM": {
+   "name": "FFMODStudioModule::GetStudioSystem",
+   "rva": 43064260,
+   "code": "83fa0374094863c2488b44c110c333d2"
+  },
+  "FMOD_AVAILABLE": {
+   "name": "IFMODStudioModule::IsAvailable",
+   "rva": 19292236,
+   "code": "4883ec2865488b042558000000b90401"
+  },
+  "CANVAS_BEGIN": {
+   "name": "UKismetRenderingLibrary::BeginDrawCanvasToRenderTarget",
+   "rva": 89837924,
+   "code": "40555356574154415541564157488d6c"
+  },
+  "CANVAS_END": {
+   "name": "UKismetRenderingLibrary::EndDrawCanvasToRenderTarget",
+   "rva": 89882920,
+   "code": "48895c24184889742420555741544156"
+  },
+  "CANVAS_CLEAR": {
+   "name": "UKismetRenderingLibrary::ClearRenderTarget2D",
+   "rva": 40532868,
+   "code": "488bc448895810488970184889782055"
+  },
+  "CANVAS_DRAW": {
+   "name": "UCanvas::K2_DrawTexture",
+   "rva": 93392976,
+   "code": "488bc448895808488968104889701857"
+  },
+  "TARGET_INIT": {
+   "name": "UTextureRenderTarget2D::InitCustomFormat",
+   "rva": 35464948,
+   "code": "8a44242880a162010000fe0881620100"
+  },
+  "SOURCE_RESOURCE": {
+   "name": "UTexture::GetResource",
+   "rva": 18461716,
+   "code": "488bc448895808488968104889701848"
+  },
+  "WEAK_GET": {
+   "name": "FWeakObjectPtr::Get",
+   "rva": 43161612,
+   "code": "448b51044533c04585d274438b0185c0"
+  },
+  "WEAK_ASSIGN": {
+   "name": "FWeakObjectPtr::operator=",
+   "rva": 20920180,
+   "code": "48895c24084889742410574883ec2048"
+  },
+  "DIAL_UPDATE": {
+   "name": "UCRTVTuningDisplayWidget::UpdateDisplayedSignal",
+   "rva": 101710604,
+   "code": "48895c24084889742420488954241055"
+  },
+  "DIAL_REMOVE": {
+   "name": "UCRTVTuningDisplayWidget::RemoveDisplayedSignal",
+   "rva": 101683784,
+   "code": "488bc448895808488968104889701848"
+  },
+  "MEDIA_GET_RATE": {
+   "name": "UMediaPlayer::GetRate",
+   "rva": 86038212,
+   "code": "488b8950010000e9b8eafeff48895c24"
+  },
+  "IMAGE_COLOR": {
+   "name": "UImage::SetColorAndOpacity",
+   "rva": 32383860,
+   "code": "4883ec380f2802f30f7f813002000048"
+  },
+  "SLOT_POSITION": {
+   "name": "UCanvasPanelSlot::SetPosition",
+   "rva": 33732608,
+   "code": "4055488bec4883ec50f20f1002f20f10"
+  }
+ },
+ "values": {
+  "SOUND_CHANNELS": 2208,
+  "MEDIA_PLAY_ON_OPEN": 249,
+  "MEDIA_NATIVE_AUDIO": 248,
+  "MEDIA_FACADE": 336,
+  "TEXTURE_NEW_STYLE": 341,
+  "TEXTURE_DIMENSIONS": 432,
+  "TEXTURE_ASPECT": 344,
+  "RADIO_FINE": 1880,
+  "RADIO_ACTIVE": 1136,
+  "RADIO_STRENGTH": 1388,
+  "RADIO_STORY": 2044,
+  "RADIO_DIAL": 1488,
+  "DIAL_CAPACITY": 880,
+  "DIAL_NEEDLES": 920,
+  "DIAL_PANEL": 896,
+  "NEEDLE_IMAGE": 0,
+  "NEEDLE_SLOT": 8,
+  "NEEDLE_SOURCE": 16,
+  "SLOT_X": 56,
+  "TEXTURE_RHI": 16,
+  "RHI_EXTENT": 68,
+  "RHI_FORMAT": 83,
+  "SOUND_ACTIVE": 150,
+  "SOUND_ACTIVE_MASK": 16,
+  "PIXEL_BGRA": 2,
+  "PIXEL_RGBA": 37,
+  "FMOD_RUNTIME": 1,
+  "SOUND_STEREO": 1,
+  "BLEND_OPAQUE": 0,
+  "SIGNAL_DISCOVERED": 2
+ }
+}

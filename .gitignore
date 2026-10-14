@@ -1,0 +1,15 @@
+build/
+dist/
+__pycache__/
+*.pyc
+*.pyo
+# Made by build.py (the profile with --game-root); both ship in the release zip.
+TownfallVideoTuner/Scripts/tf_video.dll
+TownfallVideoTuner/Scripts/tf_video.profile
+TownfallVideoTuner/Scripts/*.tmp
+# What the mod writes while the game runs, and the player's videos.
+TownfallVideoTuner/*.bin
+TownfallVideoTuner/*.log
+TownfallVideoTuner/Videos/*.mp4
+TownfallVideoTuner/Videos/*.mkv
+TownfallVideoTuner/Videos/stations-auto.ini
