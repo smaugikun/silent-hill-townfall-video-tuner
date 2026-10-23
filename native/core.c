@@ -85,7 +85,7 @@ int tf_mkv_audio(const unsigned char *data, size_t size, char *codec, size_t cod
 }
 int tf_parse_config(const char *text, TfConfig *config, char *error, size_t size) {
     memset(config,0,sizeof(*config));
-    config->tolerance=0.010; config->hysteresis=0.005; config->fade_ms=200; config->auto_assign=1;
+    config->tolerance=0.025; config->hysteresis=0.005; config->fade_ms=200; config->auto_assign=1;
     config->output_width=640; config->output_height=480;
     config->warm_decoder_ms=3000;
     config->frequency_side=0; /* keep the group at a free end of the game's dial */

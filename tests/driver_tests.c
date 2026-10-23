@@ -148,7 +148,7 @@ static Output step(unsigned flags,double frequency,unsigned epoch) {
 }
 static void resume_tests(void) {
     char error[256];
-    CHECK(tf_parse_config("[General]\nfadeMs=0\nwarmDecoderMs=0\n[A]\nfile=test.mp4\nfrequency=.15\n[B]\nfile=second.mkv\nfrequency=.75\n",&config,error,sizeof(error)));
+    CHECK(tf_parse_config("[General]\ntolerance=.01\nfadeMs=0\nwarmDecoderMs=0\n[A]\nfile=test.mp4\nfrequency=.15\n[B]\nfile=second.mkv\nfrequency=.75\n",&config,error,sizeof(error)));
     memset(bookmarks,0,sizeof(bookmarks)); tf_controller_init(&controller);
     int previous_seeks=seeks;
     step(ACTIVE,.15,3); mock_preparing=0; mock_time=50000000;
@@ -225,7 +225,7 @@ static int read_marks(char *out,size_t size) {
 }
 static void reservation_packet_tests(void) {
     char error[256],marks[256];
-    CHECK(tf_parse_config("[General]\nfadeMs=0\nwarmDecoderMs=0\n[A]\nfile=test.mp4\nfrequency=.95\n[B]\nfile=second.mkv\nfrequency=.915\n",&config,error,sizeof(error)));
+    CHECK(tf_parse_config("[General]\ntolerance=.01\nfadeMs=0\nwarmDecoderMs=0\n[A]\nfile=test.mp4\nfrequency=.95\n[B]\nfile=second.mkv\nfrequency=.915\n",&config,error,sizeof(error)));
     config.stations[0].automatic=config.stations[1].automatic=1;
     struct { char magic[8]; uint32_t epoch,count,valid,revision; TfRange range; } packet={.epoch=7,.count=1,.valid=1,.revision=1,.range={.10,.98}};
     memcpy(packet.magic,"TFVRANG1",8);
@@ -247,7 +247,7 @@ static void reservation_packet_tests(void) {
 }
 static void warm_decoder_tests(void) {
     char error[256];
-    CHECK(tf_parse_config("[General]\nfadeMs=0\n[A]\nfile=test.mp4\nfrequency=.15\n[B]\nfile=second.mkv\nfrequency=.75\n",&config,error,sizeof(error)));
+    CHECK(tf_parse_config("[General]\ntolerance=.01\nfadeMs=0\n[A]\nfile=test.mp4\nfrequency=.15\n[B]\nfile=second.mkv\nfrequency=.75\n",&config,error,sizeof(error)));
     tf_controller_init(&controller); memset(bookmarks,0,sizeof(bookmarks));
     step(ACTIVE,.15,10); mock_preparing=0; mock_time=40000000; step(ACTIVE|BOUND,.15,10);
     int before=closes,opened=opens,sought=seeks;
@@ -333,7 +333,7 @@ int main(void) {
     swprintf(second,2048,L"%ls\\second.mkv",videos);
     HANDLE f=CreateFileW(video,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL); CHECK(f!=INVALID_HANDLE_VALUE); CloseHandle(f);
     f=CreateFileW(second,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL); CHECK(f!=INVALID_HANDLE_VALUE); CloseHandle(f);
-    char error[256]; CHECK(tf_parse_config("[General]\nfadeMs=0\nwarmDecoderMs=0\n[A]\nfile=test.mp4\nfrequency=.15\n[B]\nfile=test.mp4\nfrequency=.75\n",&config,error,sizeof(error)));
+    char error[256]; CHECK(tf_parse_config("[General]\ntolerance=.01\nfadeMs=0\nwarmDecoderMs=0\n[A]\nfile=test.mp4\nfrequency=.15\n[B]\nfile=test.mp4\nfrequency=.75\n",&config,error,sizeof(error)));
     initialized=valid_profile=1; tf_controller_init(&controller); functions();
     memcpy(player_bytes+PV(MEDIA_FACADE),&facade_marker,sizeof(facade_marker));
     radio_bytes[PV(RADIO_ACTIVE)]=1;

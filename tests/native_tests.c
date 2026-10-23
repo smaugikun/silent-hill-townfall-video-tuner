@@ -63,7 +63,7 @@ static void configuration_tests(void) {
     CHECK(tf_choose_station(&c,0,.15,1)==-1);
     CHECK(tf_choose_station(&c,0,NAN,0)==-1 && tf_choose_station(&c,0,INFINITY,0)==-1);
     c.stations[0].enabled=0; CHECK(tf_choose_station(&c,0,.15,0)==-1);
-    TfConfig dial=parse("[Video]\nfile=video.mp4\nfrequency=.080\n",1);
+    TfConfig dial=parse("[General]\ntolerance=.01\n[Video]\nfile=video.mp4\nfrequency=.080\n",1);
     CHECK(tf_choose_station(&dial,-1,(double)(float).070,0)==0);
     CHECK(tf_choose_station(&dial,-1,(double)(float).090,0)==0);
     CHECK(tf_choose_station(&dial,0,(double)(float).065,0)==0);
@@ -95,17 +95,17 @@ static void automatic_station_tests(void) {
         CHECK(tf_add_auto_station(&cfg,name,-1)==i);
     }
     CHECK(tf_add_auto_station(&cfg,"one-too-many.mp4",-1)==-1 && cfg.count==TF_MAX_STATIONS);
-    cfg=parse("[General]\nfrequencySide=right\n",1);
+    cfg=parse("[General]\nfrequencySide=right\ntolerance=.01\n",1);
     CHECK(tf_add_auto_station(&cfg,"right1.mp4",.05)==0 && cfg.stations[0].frequency==.984);
     CHECK(tf_add_auto_station(&cfg,"right2.mkv",.085)==1 && cfg.stations[1].frequency==.953);
     CHECK(tf_add_auto_station(&cfg,"right3.mkv",.185)==2 && cfg.stations[2].frequency==.922);
     CHECK(tf_add_auto_station(&cfg,"keep.mkv",.81)==3 && cfg.stations[3].frequency==.81);
-    cfg=parse("[General]\nfrequencySide=left\n",1);
+    cfg=parse("[General]\nfrequencySide=left\ntolerance=.01\n",1);
     CHECK(tf_add_auto_station(&cfg,"left.mp4",.95)==0 && cfg.stations[0].frequency==.016);
     cfg=parse("[General]\nfrequencySide=both\ntolerance=.000001\nhysteresis=0\n",1);
     CHECK(tf_add_auto_station(&cfg,"left_saved.mp4",.10)==0 && cfg.stations[0].frequency==.10);
     parse("[General]\nfrequencySide=middle\n",0);
-    cfg=parse("[General]\nfrequencySide=auto\n[Pin]\nfile=pinned.mp4\nfrequency=.15\n",1);
+    cfg=parse("[General]\nfrequencySide=auto\ntolerance=.01\n[Pin]\nfile=pinned.mp4\nfrequency=.15\n",1);
     CHECK(tf_add_auto_station(&cfg,"first.mp4",.95)==1);
     CHECK(tf_add_auto_station(&cfg,"second.mkv",.915)==2);
     CHECK(tf_add_auto_station(&cfg,"third.mkv",.88)==3);
@@ -178,7 +178,7 @@ static void controller_tests(void) {
     STEP(.4,0,0,0,2,17470); CHECK(c.phase==TF_IDLE && !c.audible); /* close cancels a fade immediately */
     cfg.fade_ms=0; STEP(.15,1,0,0,2,18000); f.preparing=0; STEP(.15,1,0,0,2,18020);
     STEP(.75,1,0,0,2,18040); CHECK(c.phase==TF_OPENING && c.station==1);
-    cfg=parse("[Video]\nfile=video.mp4\nfrequency=.080\n",1);
+    cfg=parse("[General]\ntolerance=.01\n[Video]\nfile=video.mp4\nfrequency=.080\n",1);
     tf_controller_init(&c); memset(&f,0,sizeof(f)); f.duration=100000000;
     STEP((double)(float).080,1,0,0,3,20000); f.preparing=0;
     STEP((double)(float).080,1,0,0,3,20020); f.pos=50000000;
