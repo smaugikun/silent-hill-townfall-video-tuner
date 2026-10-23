@@ -63,8 +63,8 @@ the game after changing it.
 
 Automatic stations use the dial's ends (0.010 to 0.200 and 0.800 to 0.990) and keep their frequencies while they
 stay clear of the game's signals. A station of your own keeps its frequency; where it overlaps a game signal, the
-game's signal plays there. Monsters, waypoints, transmissions, fine tuning and cutscenes take over as usual, and the
-mod never moves your dial or raises the CRTV for you.
+game's signal plays there. Monsters, waypoints, transmissions, fine tuning and cutscenes take over as usual. The mod never raises the CRTV
+for you, and moves the dial only when you quick-tune (Q/E): that also stops at the video stations.
 
 ## Troubleshooting
 

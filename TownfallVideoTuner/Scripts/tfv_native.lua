@@ -83,7 +83,9 @@ end
 function M.update(state, objects, bound)
     local ranges=state.ranges or {}
     local ready=state.reservationValid and #ranges<=256
-    local parts={string.pack("<I4I4I4",state.epoch or 0,ready and #ranges or 0,ready and 1 or 0)}
+    -- epoch, count, valid; then (after the revision) the game's waypoint tuning range for the stations; the ranges.
+    local parts={string.pack("<I4I4I4",state.epoch or 0,ready and #ranges or 0,ready and 1 or 0),
+                 string.pack("<d",ready and state.waypointTolerance or 0)}
     if ready then
         for _,range in ipairs(ranges) do
             parts[#parts+1]=string.pack("<dd",math.max(0,range[1]),math.min(1,range[2]))
@@ -92,7 +94,7 @@ function M.update(state, objects, bound)
     local key=table.concat(parts)
     if rangeKey~=key then
         rangeRevision=(rangeRevision or 0)+1
-        send(3,"TFVRANG1"..key:sub(1,12)..string.pack("<I4",rangeRevision)..key:sub(13))
+        send(3,"TFVRANG2"..key:sub(1,12)..string.pack("<I4",rangeRevision)..key:sub(13))
         rangeKey=key
     end
     sequence = sequence + 1

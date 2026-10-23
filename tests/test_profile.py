@@ -27,7 +27,7 @@ FUNCTION = struct.Struct('<I16s')
 def parse(data):
     """A profile file as {timestamp, image_size, identity, functions: [(rva, code)], values: [...]}."""
     magic, version, size, timestamp, image_size, identity = HEADER.unpack_from(data)
-    assert magic == b'TFVPROF1' and version == 1 and size == len(data), (magic, version, size, len(data))
+    assert magic == b'TFVPROF1' and version == 2 and size == len(data), (magic, version, size, len(data))
     functions = [FUNCTION.unpack_from(data, HEADER.size + i * FUNCTION.size) for i in range(FUNCTIONS)]
     values = struct.unpack_from(f'<{VALUES}I', data, HEADER.size + FUNCTIONS * FUNCTION.size)
     return {'timestamp': timestamp, 'image_size': image_size, 'identity': identity.hex(),

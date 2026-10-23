@@ -342,6 +342,7 @@ static int read_values(uint32_t *v) {
         !member(radio, "cachedHighestSignalStrength", 4, &v[TFV_RADIO_STRENGTH]) ||
         !member(radio, "bTunedToSignalObjectFrequency", 1, &v[TFV_RADIO_STORY]) ||
         !member(radio, "NeedlesWidget", 8, &v[TFV_RADIO_DIAL]) ||
+        !member(radio, "CurrentTunedFrequency", 4, &v[TFV_RADIO_FREQUENCY]) ||
         !member(dial, "MaxNumberOfNeedleWidgets", 4, &v[TFV_DIAL_CAPACITY]) ||
         !member(dial, "TuningNeedleWidgets", 16, &v[TFV_DIAL_NEEDLES]) || !member(dial, "CanvasPanel", 8, &v[TFV_DIAL_PANEL]) ||
         !member(needle, "Image", 8, &v[TFV_NEEDLE_IMAGE]) || !member(needle, "CanvasPanelSlot", 8, &v[TFV_NEEDLE_SLOT]) ||

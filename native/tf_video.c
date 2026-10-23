@@ -83,7 +83,9 @@ static uint64_t cache_until;
 static int64_t bookmarks[TF_MAX_STATIONS],resume_target;
 static MarkerPacket marker_packet;
 static int marker_packet_ready;
-typedef struct { char magic[8]; uint32_t epoch,count,valid,revision; } RangeHeader;
+/* The game's tuning ranges, and its waypoints' range (the stations take it unless stations.ini sets a tolerance). */
+typedef struct { char magic[8]; uint32_t epoch,count,valid,revision; double waypoint_tolerance; } RangeHeader;
+_Static_assert(sizeof(RangeHeader)==32,"Lua ranges packet ABI");
 static RangeHeader range_header;
 static TfRange range_values[TF_MAX_RANGES];
 static int range_packet_ready;
@@ -160,7 +162,7 @@ static int packet_read(void) {
             memcpy(&marker_packet,bytes,sizeof(marker_packet)); marker_packet_ready=1; markers_loaded=0;
         } else if (kind==TF_BRIDGE_RANGES && size>=sizeof(RangeHeader)) {
             RangeHeader header; memcpy(&header,bytes,sizeof(header));
-            if (memcmp(header.magic,"TFVRANG1",8) || header.count>TF_MAX_RANGES || header.valid>1 ||
+            if (memcmp(header.magic,"TFVRANG2",8) || header.count>TF_MAX_RANGES || header.valid>1 ||
                 size!=sizeof(header)+header.count*sizeof(TfRange)) { error_code=6; return 0; }
             range_header=header;
             memcpy(range_values,bytes+sizeof(header),header.count*sizeof(TfRange)); range_packet_ready=1;
@@ -424,6 +426,13 @@ static void ranges_update(void) {
     RangeHeader header=range_header;
     int ok=range_packet_ready && header.epoch==incoming.epoch;
     if (range_seen && range_epoch==incoming.epoch && range_revision==(ok?header.revision:0)) return;
+    /* Unless stations.ini sets a tolerance, a station reaches as far as the game's own waypoints (its videos and
+     * transmissions): tolerance plus hysteresis is that range. */
+    double reach=ok && header.valid ? header.waypoint_tolerance : 0;
+    if (!config.tolerance_set && reach>config.hysteresis && reach<=0.1 && fabs(reach-config.hysteresis-config.tolerance)>1e-9) {
+        config.tolerance=reach-config.hysteresis;
+        tf_log("Stations tune like the game's CRTV signals: within %.4f of their frequency",reach);
+    }
     int changed=tf_reassign_automatic(&config,ok?range_values:NULL,ok?(int)header.count:0,ok && header.valid);
     if (changed<0) changed=tf_reassign_automatic(&config,NULL,0,0);
     range_seen=1; range_epoch=incoming.epoch; range_revision=ok?header.revision:0;
@@ -516,6 +525,37 @@ static int bridge_setup(void) {
     marker_packet_ready=range_packet_ready=range_seen=0;
     return 1;
 }
+/* Quick tuning (Q/E, D-pad, the phone) only knows the game's signals: after its jump, the needle goes to a video station
+ * instead when one is nearer that way, set the way the game sets it (SetTunedFrequency_Internal, then the CRTV's
+ * jump). Installed once a fitting profile is there; the game thread calls it, as it calls the ticks. */
+#ifndef TF_VIDEO_TEST
+#include "MinHook.h"
+static void (*quick_tune_original)(void *,unsigned char);
+static void quick_tune_detour(void *radio,unsigned char up) {
+    float before=0,after=0;
+    int known=valid_profile && read_memory((char *)radio+PV(RADIO_FREQUENCY),&before,4);
+    quick_tune_original(radio,up);
+    if (!known || !valid_profile || !read_memory((char *)radio+PV(RADIO_FREQUENCY),&after,4)) return;
+    double station=tf_quick_tune(&config,before,after,up);
+    if (station<0) return;
+    FN(SET_FREQUENCY,void (*)(void *,float,unsigned char,unsigned char))(radio,(float)station,1,0);
+    void *widget=FN(RADIO_WIDGET,void *(*)(void *))(radio);
+    if (widget) FN(QUICK_TUNE_JUMP,VoidFn)(widget);
+}
+static void quick_tune_hook(void) {
+    static int installed;
+    if (installed || !valid_profile) return;
+    installed=1;
+    void *quick_tune=image+tf_profile.functions[QUICK_TUNE].rva;
+    MH_STATUS ready=MH_Initialize();
+    if ((ready==MH_OK || ready==MH_ERROR_ALREADY_INITIALIZED) &&
+        MH_CreateHook(quick_tune,(void *)quick_tune_detour,(void **)&quick_tune_original)==MH_OK && MH_EnableHook(quick_tune)==MH_OK)
+        tf_log("Quick tuning stops at the video stations too");
+    else tf_log("Quick tuning can't stop at the video stations: its hook didn't install");
+}
+#else
+static void quick_tune_hook(void) {}
+#endif
 /* The profile written for this game, checked against the running game. */
 static int profile_fits(void) { return profile_read(profile_path) && validate_image(image); }
 /* No fitting profile (a game update, or a first start without one): this DLL reads the game's PDB in a process of
@@ -544,7 +584,7 @@ static void profile_poll(void) {
     }
     tf_log("Game profile ready: the stations are on");
     if (!(valid_profile=config_ok)) return;
-    error_code=0; tf_reassign_automatic(&config,NULL,0,0); publish_marks();
+    error_code=0; tf_reassign_automatic(&config,NULL,0,0); publish_marks(); quick_tune_hook();
 }
 __declspec(dllexport) int tf_video_info(void *lua_state) { (void)lua_state; profile_poll(); packet_write(); return 0; }
 __declspec(dllexport) int tf_video_init(void *lua_state) {
@@ -572,7 +612,7 @@ __declspec(dllexport) int tf_video_init(void *lua_state) {
     if (!fits && image) profile_helper_start();
     valid_profile=fits && config_ok;
     error_code=!config_ok?2:!fits?(profile_helper?7:1):0;
-    if (valid_profile) tf_reassign_automatic(&config,NULL,0,0);
+    if (valid_profile) { tf_reassign_automatic(&config,NULL,0,0); quick_tune_hook(); }
     publish_marks();
     bridge_setup();
     tf_log("Native setup completed in %llu ms; media files open only when tuned",

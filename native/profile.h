@@ -4,7 +4,7 @@
 /* What tf_video.dll takes from the game. game_profile.c (run through rundll32 after a game update) looks each of these
  * up in the game's PDB, checks it, and writes Scripts/tf_video.profile; the DLL takes that file only for the exact game
  * it was written for (tf_video.c validate_image). Changing these lists changes the file: raise TF_PROFILE_VERSION. */
-#define TF_PROFILE_VERSION 1
+#define TF_PROFILE_VERSION 2
 
 /* The engine functions the DLL calls: key, name in the PDB, and the signature it calls them with (result and
  * arguments, `this` aside, as game_profile.c's type_text writes them). The keys index FN() in tf_video.c. */
@@ -48,7 +48,11 @@
     X(DIAL_REMOVE, "UCRTVTuningDisplayWidget::RemoveDisplayedSignal", "base1:0(UActorComponent*)") \
     X(MEDIA_GET_RATE, "UMediaPlayer::GetRate", "base8:4()") \
     X(IMAGE_COLOR, "UImage::SetColorAndOpacity", "base1:0(FLinearColor)") \
-    X(SLOT_POSITION, "UCanvasPanelSlot::SetPosition", "base1:0(UE::Math::TVector2<double>)")
+    X(SLOT_POSITION, "UCanvasPanelSlot::SetPosition", "base1:0(UE::Math::TVector2<double>)") \
+    X(QUICK_TUNE, "UHandheldRadioComponent::DoRadioQuickTune", "base1:0(base10:1)") \
+    X(SET_FREQUENCY, "UHandheldRadioComponent::SetTunedFrequency_Internal", "base1:0(base8:4, base10:1, base10:1)") \
+    X(RADIO_WIDGET, "UHandheldRadioComponent::GetCRTVWidget", "UCRTVWidget*()") \
+    X(QUICK_TUNE_JUMP, "UCRTVWidget::QuickTuneJump", "base1:0()")
 
 /* The member offsets and enum values the DLL uses, through PV(key) in tf_video.c (game_profile.c says where each
  * comes from). */
@@ -57,7 +61,7 @@
     X(TEXTURE_DIMENSIONS) X(TEXTURE_ASPECT) X(RADIO_FINE) X(RADIO_ACTIVE) X(RADIO_STRENGTH) X(RADIO_STORY) \
     X(RADIO_DIAL) X(DIAL_CAPACITY) X(DIAL_NEEDLES) X(DIAL_PANEL) X(NEEDLE_IMAGE) X(NEEDLE_SLOT) X(NEEDLE_SOURCE) \
     X(SLOT_X) X(TEXTURE_RHI) X(RHI_EXTENT) X(RHI_FORMAT) X(SOUND_ACTIVE) X(SOUND_ACTIVE_MASK) X(PIXEL_BGRA) \
-    X(PIXEL_RGBA) X(FMOD_RUNTIME) X(SOUND_STEREO) X(BLEND_OPAQUE) X(SIGNAL_DISCOVERED)
+    X(PIXEL_RGBA) X(FMOD_RUNTIME) X(SOUND_STEREO) X(BLEND_OPAQUE) X(SIGNAL_DISCOVERED) X(RADIO_FREQUENCY)
 
 enum TfFunction {
 #define X(key, name, signature) key,

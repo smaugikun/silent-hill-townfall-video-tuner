@@ -38,8 +38,10 @@ def main():
     common = [zig, 'cc', '-target', 'x86_64-windows-gnu', '-std=c11', '-O2',
               '-Wall', '-Wextra', '-Wshadow', '-Werror']
     shared = ['native/core.c', 'native/audio.c', 'native/files.c']
+    minhook = [f'native/vendor/minhook/src/{name}' for name in ('buffer.c', 'hook.c', 'trampoline.c', 'hde/hde64.c')]
     recipes = [
-        ('tf_video.dll', ['-s', '-shared'], ['native/tf_video.c', *shared, 'native/game_profile.c', 'native/version.rc']),
+        ('tf_video.dll', ['-s', '-shared', '-I', 'native/vendor/minhook/include'],
+         ['native/tf_video.c', *shared, 'native/game_profile.c', *minhook, 'native/version.rc']),
         ('native_tests.exe', ['-DTF_AUDIO_TEST'], ['tests/native_tests.c', *shared]),
         ('driver_tests.exe', ['-DTF_AUDIO_TEST'], ['tests/driver_tests.c', *shared]),
         ('fmod_integration.exe', [], ['tests/fmod_integration.c', 'native/core.c']),

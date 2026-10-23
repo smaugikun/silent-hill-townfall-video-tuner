@@ -66,6 +66,7 @@ return function(scripts, options)
     world.controller=object({Pawn=world.pawn})
     function world.addSource(f,t)
         local source=object({TuningFrequency=f,TuningTolerance_Outer=t})
+        source.class="/Script/Townfall.RadioWaypointSourceComponent"
         source.owner=object({})
         method(source,"GetOwner",function(self) return self.owner end)
         world.sources[#world.sources+1]=source

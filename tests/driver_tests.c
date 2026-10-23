@@ -227,11 +227,33 @@ static void reservation_packet_tests(void) {
     char error[256],marks[256];
     CHECK(tf_parse_config("[General]\ntolerance=.01\nfadeMs=0\nwarmDecoderMs=0\n[A]\nfile=test.mp4\nfrequency=.95\n[B]\nfile=second.mkv\nfrequency=.915\n",&config,error,sizeof(error)));
     config.stations[0].automatic=config.stations[1].automatic=1;
-    struct { char magic[8]; uint32_t epoch,count,valid,revision; TfRange range; } packet={.epoch=7,.count=1,.valid=1,.revision=1,.range={.10,.98}};
-    memcpy(packet.magic,"TFVRANG1",8);
+    struct { char magic[8]; uint32_t epoch,count,valid,revision; double waypoint; TfRange range; } packet=
+        {.epoch=7,.count=1,.valid=1,.revision=1,.waypoint=.04,.range={.10,.98}};
+    memcpy(packet.magic,"TFVRANG2",8);
     send_packet(TF_BRIDGE_RANGES,&packet,sizeof(packet)); CHECK(!packet_read() && range_packet_ready);
     incoming.epoch=7; range_seen=0; ranges_update();
     CHECK(config.stations[0].enabled && config.stations[0].frequency==.016 && config.stations[1].frequency==.047);
+    CHECK(config.tolerance==.01);                      /* stations.ini set one: the game's waypoints don't change it */
+    {   /* Without one, the stations reach as far as the game's waypoints: tolerance + hysteresis = their range. */
+        TfConfig kept=config; char text[256];
+        CHECK(tf_parse_config("[General]\nhysteresis=.005\n",&config,text,sizeof(text)) && !config.tolerance_set);
+        range_seen=0; ranges_update();
+        CHECK(fabs(config.tolerance+config.hysteresis-.04)<1e-12);
+        config=kept;
+    }
+    {   /* The wider range never reaches into a game signal: a station whose zone now would is moved clear of it. */
+        TfConfig kept=config; char text[256];
+        CHECK(tf_parse_config("[General]\nhysteresis=.005\nfadeMs=0\nwarmDecoderMs=0\n[A]\nfile=test.mp4\nfrequency=.95\n",&config,text,sizeof(text)));
+        config.stations[0].automatic=1; config.stations[0].frequency=.09;        /* fits the old range next to .12 */
+        packet.revision=2; packet.waypoint=.04; packet.range=(TfRange){.12,.98};
+        send_packet(TF_BRIDGE_RANGES,&packet,sizeof(packet)); CHECK(!packet_read());
+        range_seen=0; ranges_update();
+        double reach=config.tolerance+config.hysteresis;
+        CHECK(fabs(reach-.04)<1e-12 && config.stations[0].enabled);
+        CHECK(config.stations[0].frequency+reach<.12 && config.stations[0].frequency-reach>0); /* moved clear of the game */
+        CHECK(read_marks(marks,sizeof(marks)));
+        config=kept; packet.revision=1; publish_marks();
+    }
     CHECK(config.range_count==1 && range_seen);
     /* Townfall Companion's phone dial gets the stations' marks, in the dial's colour. */
     CHECK(read_marks(marks,sizeof(marks)) &&
@@ -289,7 +311,7 @@ static void test_profile(void) {
         {TFV_DIAL_CAPACITY,880},{TFV_DIAL_NEEDLES,920},{TFV_DIAL_PANEL,896},{TFV_NEEDLE_IMAGE,0},{TFV_NEEDLE_SLOT,8},
         {TFV_NEEDLE_SOURCE,16},{TFV_SLOT_X,56},{TFV_TEXTURE_RHI,16},{TFV_RHI_EXTENT,68},{TFV_RHI_FORMAT,83},
         {TFV_SOUND_ACTIVE,150},{TFV_SOUND_ACTIVE_MASK,16},{TFV_PIXEL_BGRA,2},{TFV_PIXEL_RGBA,37},{TFV_FMOD_RUNTIME,1},
-        {TFV_SOUND_STEREO,1},{TFV_BLEND_OPAQUE,0},{TFV_SIGNAL_DISCOVERED,2}};
+        {TFV_SOUND_STEREO,1},{TFV_BLEND_OPAQUE,0},{TFV_SIGNAL_DISCOVERED,2},{TFV_RADIO_FREQUENCY,1160}};
     CHECK(sizeof(values)/sizeof(*values)==TF_VALUE_COUNT);
     for (size_t i=0;i<TF_VALUE_COUNT;++i) tf_profile.values[values[i].key]=values[i].value;
 }

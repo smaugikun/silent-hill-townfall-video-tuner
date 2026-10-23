@@ -8,13 +8,17 @@ local worldAddress, pawnAddress, epoch = nil,nil,0
 local sequences, sources, intervals, enemies = {},{},{},{}
 local lastReserve = -math.huge
 local reservationValid=false
-local playerClass, statics
+local playerClass, statics, waypointClass
+-- The game's own CRTV videos and transmissions are waypoints: the stations take their tuning range (the most
+-- common one in the level), 0 while there are none. isWaypoint: by source address, asked once each.
+local waypointTolerance, isWaypoint = 0, {}
 
 local function watch(path, list)
     local class = StaticFindObject(path)
     if valid(class) then NotifyOnNewObject(path,function(object)
         if valid(object) then list()[#list()+1]=object end
     end) end
+    return class
 end
 function M.init()
     playerClass=StaticFindObject("/Script/Townfall.TownfallPlayerCharacter")
@@ -24,7 +28,7 @@ function M.init()
         return false
     end
     watch("/Script/LevelSequence.LevelSequencePlayer",function() return sequences end)
-    watch("/Script/Townfall.RadioWaypointSourceComponent",function() return sources end)
+    waypointClass=watch("/Script/Townfall.RadioWaypointSourceComponent",function() return sources end)
     watch("/Script/Townfall.RadioStaticSourceComponent",function() return sources end)
     watch("/Script/Townfall.TownfallEnemyCharacter",function() return enemies end)
     return true
@@ -33,6 +37,7 @@ local function newLevel()
     epoch=epoch+1
     screen.reset()
     sequences,sources,enemies,intervals={},{},{},{}
+    waypointTolerance,isWaypoint=0,{}
     lastReserve=-math.huge; reservationValid=false
     native.log("world", "World/pawn changed; media state and CRTV ownership reset (epoch "..epoch..")")
     -- Splash/menu pawns do not need source scans across the game's object array.
@@ -60,7 +65,7 @@ local function reserved(frequency)
             if ok and valid(source) then sources[#sources+1]=source end
         end end
         enemies=livingEnemies
-        local alive,seen={},{}
+        local alive,seen,counts={},{},{}
         intervals={}
         for _,source in ipairs(sources) do
             if valid(source) then
@@ -78,11 +83,23 @@ local function reserved(frequency)
                             return true
                         end
                         if f>=0 and f<=1 and t>=0 then intervals[#intervals+1]={f-t,f+t} end
+                        if isWaypoint[address]==nil then
+                            isWaypoint[address]=valid(waypointClass) and source:IsA(waypointClass) or false
+                            if isWaypoint[address] then
+                                local inner=select(2,pcall(function() return source.TuningTolerance_Inner end))
+                                native.log("signal "..address,string.format("CRTV signal at %.4f: comes in within %.4f, clear within %s",
+                                    f,t,type(inner)=="number" and string.format("%.4f",inner) or "?"))
+                            end
+                        end
+                        if isWaypoint[address] and t>0 then counts[t]=(counts[t] or 0)+1 end
                     end
                 end
             end
         end
         sources=alive; reservationValid=true
+        local best=0
+        for t,n in pairs(counts) do if n>(counts[best] or 0) or (n==counts[best] and t>best) then best=t end end
+        waypointTolerance=best
         local playingAlive={}
         for _,sequence in ipairs(sequences) do if valid(sequence) then playingAlive[#playingAlive+1]=sequence end end
         sequences=playingAlive
@@ -127,6 +144,7 @@ function M.read()
     reserved(0)
     state.reservationValid=reservationValid
     state.ranges=intervals
+    state.waypointTolerance=waypointTolerance
     if not state.active then screen.reset(); return state end
     state.radio=pawn:GetRadio()
     if not valid(state.radio) then state.active=false; return state end

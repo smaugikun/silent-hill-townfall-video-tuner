@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'dist'
 MOD = ROOT / 'TownfallVideoTuner'
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 # Runtime files, the player's videos and what the mod writes next to them never ship.
 EXCLUDED = {'.pyc', '.pyo', '.bin', '.log', '.ps1', '.mp4', '.mkv', '.tmp'}
 PLAYER_FILES = {'stations-auto.ini'}

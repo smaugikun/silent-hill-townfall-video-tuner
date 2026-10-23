@@ -41,9 +41,10 @@ class LuaBoundaryTests(unittest.TestCase):
         self.world.addSource(.9,.05)
         self.tick(.3)
         data=bytes.fromhex(self.world.rangeHex)
-        magic,epoch,count,ready,revision=struct.unpack_from('<8s4I',data)
-        low,high=struct.unpack_from('<2d',data,24)
-        self.assertEqual((magic,count,ready),(b'TFVRANG1',1,1))
+        magic,epoch,count,ready,revision,waypoint=struct.unpack_from('<8s4Id',data)
+        low,high=struct.unpack_from('<2d',data,32)
+        self.assertEqual((magic,count,ready),(b'TFVRANG2',1,1))
+        self.assertAlmostEqual(waypoint,.05)  # the stations' range: the game's waypoints'
         self.assertAlmostEqual(low,.85)
         self.assertAlmostEqual(high,.95)
         self.assertEqual(epoch,self.world.packet.epoch)

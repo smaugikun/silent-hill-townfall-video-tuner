@@ -172,6 +172,26 @@
    "name": "UCanvasPanelSlot::SetPosition",
    "rva": 33732608,
    "code": "4055488bec4883ec50f20f1002f20f10"
+  },
+  "QUICK_TUNE": {
+   "name": "UHandheldRadioComponent::DoRadioQuickTune",
+   "rva": 101608240,
+   "code": "48895c24084889742418555741544156"
+  },
+  "SET_FREQUENCY": {
+   "name": "UHandheldRadioComponent::SetTunedFrequency_Internal",
+   "rva": 33729980,
+   "code": "48895c2408574883ec40f30f10055ab4"
+  },
+  "RADIO_WIDGET": {
+   "name": "UHandheldRadioComponent::GetCRTVWidget",
+   "rva": 28665752,
+   "code": "48895c2410574883ec200fb699500400"
+  },
+  "QUICK_TUNE_JUMP": {
+   "name": "UCRTVWidget::QuickTuneJump",
+   "rva": 101680128,
+   "code": "40534883ec20488b150b43dd03488bd9"
   }
  },
  "values": {
@@ -204,6 +224,7 @@
   "FMOD_RUNTIME": 1,
   "SOUND_STEREO": 1,
   "BLEND_OPAQUE": 0,
-  "SIGNAL_DISCOVERED": 2
+  "SIGNAL_DISCOVERED": 2,
+  "RADIO_FREQUENCY": 1160
  }
 }

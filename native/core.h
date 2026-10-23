@@ -9,11 +9,14 @@
 #define TF_DIAL_EPSILON 0.0000001
 typedef struct { double low,high; } TfRange;
 typedef struct { char name[64], file[TF_FILE_BYTES]; double frequency, volume; int loop, enabled, automatic; } TfStation;
-typedef struct { double tolerance, hysteresis; unsigned fade_ms,output_width,output_height,warm_decoder_ms; int count, auto_assign,frequency_side,range_count; TfRange ranges[TF_MAX_RANGES]; TfStation stations[TF_MAX_STATIONS]; } TfConfig;
+typedef struct { double tolerance, hysteresis; unsigned fade_ms,output_width,output_height,warm_decoder_ms; int count, auto_assign,frequency_side,range_count,tolerance_set; TfRange ranges[TF_MAX_RANGES]; TfStation stations[TF_MAX_STATIONS]; } TfConfig;
 int tf_parse_config(const char *text, TfConfig *config, char *error, size_t size);
 int tf_add_auto_station(TfConfig *config, const char *file, double preferred_frequency);
 int tf_reassign_automatic(TfConfig *config, const TfRange *ranges, int count, int valid);
 int tf_choose_station(const TfConfig *config, int current, double frequency, int priority);
+/* Quick tuning jumped from `before` to the next game signal that way (`up`: higher frequencies) and landed on `after`
+ * (`before` when there was none). The enabled station to go to instead, nearer that way; or -1. */
+double tf_quick_tune(const TfConfig *config, double before, double after, int up);
 int tf_safe_filename(const char *name);
 /* A Matroska file's first bytes: 1 if one of its audio tracks has a codec the game plays, 0 if it has audio tracks
  * but none the game plays (`codec`: the first one's CodecID), -1 if these bytes don't tell. */

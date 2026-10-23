@@ -85,7 +85,7 @@ int tf_mkv_audio(const unsigned char *data, size_t size, char *codec, size_t cod
 }
 int tf_parse_config(const char *text, TfConfig *config, char *error, size_t size) {
     memset(config,0,sizeof(*config));
-    config->tolerance=0.025; config->hysteresis=0.005; config->fade_ms=200; config->auto_assign=1;
+    config->tolerance=0.010; config->hysteresis=0.005; config->fade_ms=200; config->auto_assign=1;
     config->output_width=640; config->output_height=480;
     config->warm_decoder_ms=3000;
     config->frequency_side=0; /* keep the group at a free end of the game's dial */
@@ -184,6 +184,7 @@ int tf_parse_config(const char *text, TfConfig *config, char *error, size_t size
                 return 0;
             }
     }
+    config->tolerance_set=(general_mask&1)!=0; /* else the stations take the game's own range (tf_video.c) */
     error[0]=0; return 1;
 invalid:
     snprintf(error,size,"invalid, unknown, or duplicate setting at line %u",line_no); return 0;
@@ -280,6 +281,17 @@ int tf_reassign_automatic(TfConfig *config,const TfRange *ranges,int count,int v
         if (enabled) station->frequency=best[i];
     }
     return changes;
+}
+double tf_quick_tune(const TfConfig *config, double before, double after, int up) {
+    double direction=up?1:-1, best=-1;
+    for (int i=0;i<config->count;++i) {
+        const TfStation *station=&config->stations[i];
+        double step=(station->frequency-before)*direction;
+        if (station->enabled && step>1e-6 && (best<0 || step<(best-before)*direction)) best=station->frequency;
+    }
+    if (best<0) return -1;
+    double game=(after-before)*direction;
+    return game>1e-6 && game<=(best-before)*direction ? -1 : best;  /* the game's signal comes first */
 }
 int tf_choose_station(const TfConfig *config, int current, double frequency, int priority) {
     if (priority || !isfinite(frequency) || frequency<0 || frequency>1) return -1;

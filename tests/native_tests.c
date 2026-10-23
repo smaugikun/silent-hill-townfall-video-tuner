@@ -63,6 +63,15 @@ static void configuration_tests(void) {
     CHECK(tf_choose_station(&c,0,.15,1)==-1);
     CHECK(tf_choose_station(&c,0,NAN,0)==-1 && tf_choose_station(&c,0,INFINITY,0)==-1);
     c.stations[0].enabled=0; CHECK(tf_choose_station(&c,0,.15,0)==-1);
+    /* Quick tuning: the nearest enabled station that way, unless the game's own jump landed nearer. */
+    TfConfig jumps=parse("[A]\nfile=a.mp4\nfrequency=.2\n[B]\nfile=b.mp4\nfrequency=.85\n[C]\nfile=c.mp4\nfrequency=.7\n",1);
+    jumps.stations[2].enabled=0;
+    CHECK(tf_quick_tune(&jumps,.5,.5,1)==.85);            /* no game signal that way; the disabled .7 is skipped */
+    CHECK(tf_quick_tune(&jumps,.5,.6,1)==-1);             /* the game's signal is nearer */
+    CHECK(tf_quick_tune(&jumps,.5,.95,1)==.85);           /* the station is nearer */
+    CHECK(tf_quick_tune(&jumps,.5,.1,0)==.2 && tf_quick_tune(&jumps,.5,.3,0)==-1);
+    CHECK(tf_quick_tune(&jumps,.1,.1,0)==-1);             /* nothing further down */
+    CHECK(tf_quick_tune(&jumps,.85,.85,1)==-1);           /* on a station already: the next one, here none */
     TfConfig dial=parse("[General]\ntolerance=.01\n[Video]\nfile=video.mp4\nfrequency=.080\n",1);
     CHECK(tf_choose_station(&dial,-1,(double)(float).070,0)==0);
     CHECK(tf_choose_station(&dial,-1,(double)(float).090,0)==0);
