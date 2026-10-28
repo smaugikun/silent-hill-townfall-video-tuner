@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+- The video stations' marks on the dial are magenta again.
+
 ## 1.0.1
 
 - Quick tuning (Q/E, D-pad) also stops at the video stations.

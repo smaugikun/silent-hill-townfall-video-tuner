@@ -1,4 +1,4 @@
-Townfall Video Tuner 1.0.1
+Townfall Video Tuner 1.0.2
 Your own videos on the CRTV in SILENT HILL: Townfall.
 
 INSTALL

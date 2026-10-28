@@ -1,6 +1,6 @@
 1 VERSIONINFO
-FILEVERSION 1,0,1,0
-PRODUCTVERSION 1,0,1,0
+FILEVERSION 1,0,2,0
+PRODUCTVERSION 1,0,2,0
 FILEFLAGSMASK 0x3F
 FILEFLAGS 0x0
 FILEOS 0x40004
@@ -12,11 +12,11 @@ BEGIN
     BLOCK "040904B0"
     BEGIN
       VALUE "FileDescription", "Townfall Video Tuner: MP4/MKV stations, dial markers and playback resume"
-      VALUE "FileVersion", "1.0.1"
+      VALUE "FileVersion", "1.0.2"
       VALUE "InternalName", "tf_video"
       VALUE "OriginalFilename", "tf_video.dll"
       VALUE "ProductName", "Townfall Video Tuner"
-      VALUE "ProductVersion", "1.0.1"
+      VALUE "ProductVersion", "1.0.2"
       VALUE "Comments", "Plays your own videos on the CRTV. MIT License."
     END
   END
