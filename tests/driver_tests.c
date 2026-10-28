@@ -53,11 +53,13 @@ static void mock_dial_update(void *widget,const SignalDisplay *display) {
     float geometry[]={display->frequency*640-320,0,15,80};
     memcpy(slot_bytes[index]+PV(SLOT_X),geometry,sizeof(geometry));
 }
-/* The engine loads FVector2D/FLinearColor arguments with movaps: a misaligned one crashes the game. */
+/* The engine loads FVector2D/FLinearColor/FSlateColor arguments with movaps: a misaligned one crashes the game. */
 #define ALIGNED(p) (((uintptr_t)(p)&15)==0)
-static void mock_image_color(void *image_object,const Color *color) {
-    CHECK(ALIGNED(color));
-    CHECK((image_object==image_bytes[0] || image_object==image_bytes[1]) && color->r==1 && color->g==0 && color->b==1 && color->a==1); ++styled;
+static void mock_image_tint(void *image_object,const SlateColor *tint) {
+    CHECK(ALIGNED(tint));
+    const Color *color=&tint->colour;
+    CHECK((image_object==image_bytes[0] || image_object==image_bytes[1]) && tint->rule==0 &&
+          color->r==1 && color->g==0 && color->b==1 && color->a==1); ++styled;
 }
 static void mock_slot_position(void *slot,const Vec2 *value) {
     CHECK(ALIGNED(value));
@@ -131,7 +133,7 @@ static void functions(void) {
     SET(SOURCE_RESOURCE,mock_resource);
     SET(WEAK_GET,mock_weak_get); SET(WEAK_ASSIGN,mock_weak_assign);
     SET(DIAL_UPDATE,mock_dial_update); SET(DIAL_REMOVE,mock_dial_remove); SET(MEDIA_GET_RATE,mock_get_rate);
-    SET(IMAGE_COLOR,mock_image_color); SET(SLOT_POSITION,mock_slot_position);
+    SET(IMAGE_TINT,mock_image_tint); SET(SLOT_POSITION,mock_slot_position);
 #undef SET
 }
 static Output step(unsigned flags,double frequency,unsigned epoch) {

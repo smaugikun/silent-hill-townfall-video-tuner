@@ -326,7 +326,8 @@ static int read_values(uint32_t *v) {
     static const struct { const char *name; uint64_t size; } lengths[] = {
         {"FString", 16}, {"FTimespan", 8}, {"FName", 8}, {"FLinearColor", 16}, {"UE::Math::TVector2<double>", 16},
         {"FDrawToRenderTargetContext", 8}, {"TSharedPtr<ISoundGenerator,1>", 16}, {"FSoundGeneratorInitParams", 72},
-        {"FWeakObjectPtr", 8}, {"FObjectPtr", 8}, {"FSignalDisplayData", 20}, {"FSignalNeedleWidgetData", 28}};
+        {"FWeakObjectPtr", 8}, {"FObjectPtr", 8}, {"FSignalDisplayData", 20}, {"FSignalNeedleWidgetData", 28},
+        {"FSlateColor", 20}};
     for (size_t i = 0; i < sizeof(lengths)/sizeof(*lengths); ++i)
         if (!length_is(lengths[i].name, lengths[i].size)) return 0;
     uint32_t layout, offsets, left, desc, extent, format, flag;
@@ -371,8 +372,12 @@ static int read_values(uint32_t *v) {
         !enum_value("EMediaSoundChannels", "Stereo", &v[TFV_SOUND_STEREO]) ||
         !enum_value("EBlendMode", "BLEND_Opaque", &v[TFV_BLEND_OPAQUE]) ||
         !enum_value("ESignalActiveState", "ActiveDiscovered", &v[TFV_SIGNAL_DISCOVERED])) return 0;
-    /* The layouts tf_video.c declares itself (SignalDisplay, GeneratorParams) and reads through. */
-    return member_at("FSignalDisplayData", "SignalComponent", 8, 0) && member_at("FSignalDisplayData", "bIsEnemySignal", 1, 8) &&
+    /* The marks' tint (tf_video.c SlateColor) is a colour the brush uses as it is. */
+    if (!enum_value("ESlateColorStylingMode", "UseColor_Specified", &flag)) return 0;
+    if (flag != 0) return fail(CHANGED, "ESlateColorStylingMode::UseColor_Specified isn't 0 any more");
+    /* The layouts tf_video.c declares itself (SignalDisplay, SlateColor, GeneratorParams) and reads through. */
+    return member_at("FSlateColor", "SpecifiedColor", 16, 0) && member_at("FSlateColor", "ColorUseRule", 1, 16) &&
+        member_at("FSignalDisplayData", "SignalComponent", 8, 0) && member_at("FSignalDisplayData", "bIsEnemySignal", 1, 8) &&
         member_at("FSignalDisplayData", "bSuppressSquelch", 1, 9) && member_at("FSignalDisplayData", "SignalActiveState", 4, 12) &&
         member_at("FSignalDisplayData", "TuningFrequency", 4, 16) &&
         member_at("FSoundGeneratorInitParams", "SampleRate", 4, 16) && member_at("FSoundGeneratorInitParams", "NumChannels", 4, 24) &&

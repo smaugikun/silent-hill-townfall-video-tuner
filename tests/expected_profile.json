@@ -163,10 +163,10 @@
    "rva": 86038212,
    "code": "488b8950010000e9b8eafeff48895c24"
   },
-  "IMAGE_COLOR": {
-   "name": "UImage::SetColorAndOpacity",
-   "rva": 32383860,
-   "code": "4883ec380f2802f30f7f813002000048"
+  "IMAGE_TINT": {
+   "name": "UImage::SetBrushTintColor",
+   "rva": 24997304,
+   "code": "40534883ec30488bd94881c178010000"
   },
   "SLOT_POSITION": {
    "name": "UCanvasPanelSlot::SetPosition",

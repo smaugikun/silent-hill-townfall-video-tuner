@@ -4,7 +4,7 @@
 /* What tf_video.dll takes from the game. game_profile.c (run through rundll32 after a game update) looks each of these
  * up in the game's PDB, checks it, and writes Scripts/tf_video.profile; the DLL takes that file only for the exact game
  * it was written for (tf_video.c validate_image). Changing these lists changes the file: raise TF_PROFILE_VERSION. */
-#define TF_PROFILE_VERSION 2
+#define TF_PROFILE_VERSION 3
 
 /* The engine functions the DLL calls: key, name in the PDB, and the signature it calls them with (result and
  * arguments, `this` aside, as game_profile.c's type_text writes them). The keys index FN() in tf_video.c. */
@@ -47,7 +47,7 @@
     X(DIAL_UPDATE, "UCRTVTuningDisplayWidget::UpdateDisplayedSignal", "base1:0(FSignalDisplayData*)") \
     X(DIAL_REMOVE, "UCRTVTuningDisplayWidget::RemoveDisplayedSignal", "base1:0(UActorComponent*)") \
     X(MEDIA_GET_RATE, "UMediaPlayer::GetRate", "base8:4()") \
-    X(IMAGE_COLOR, "UImage::SetColorAndOpacity", "base1:0(FLinearColor)") \
+    X(IMAGE_TINT, "UImage::SetBrushTintColor", "base1:0(FSlateColor)") \
     X(SLOT_POSITION, "UCanvasPanelSlot::SetPosition", "base1:0(UE::Math::TVector2<double>)") \
     X(QUICK_TUNE, "UHandheldRadioComponent::DoRadioQuickTune", "base1:0(base10:1)") \
     X(SET_FREQUENCY, "UHandheldRadioComponent::SetTunedFrequency_Internal", "base1:0(base8:4, base10:1, base10:1)") \

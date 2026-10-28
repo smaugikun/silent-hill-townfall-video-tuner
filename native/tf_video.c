@@ -22,13 +22,17 @@ typedef struct {
 } Output;
 _Static_assert(sizeof(Input)==96 && sizeof(Output)==56,"Lua packet ABI");
 typedef struct { wchar_t *data; int32_t count,capacity; } FString;
-/* FVector2D and FLinearColor go to the engine by pointer (by value in its signatures), and its code loads them with
- * aligned SSE moves (UImage::SetColorAndOpacity: movaps [rdx]): 16-byte alignment, wherever they are kept. */
+/* FVector2D, FLinearColor and FSlateColor go to the engine by pointer (by value in its signatures), and its code loads
+ * them with aligned SSE moves (UImage::SetBrushTintColor: movaps [rdx]): 16-byte alignment, wherever they are kept. */
 typedef struct { _Alignas(16) double x; double y; } Vec2;
 typedef struct { _Alignas(16) float r; float g,b,a; } Color;
-_Static_assert(sizeof(Vec2)==16 && _Alignof(Vec2)==16 && sizeof(Color)==16 && _Alignof(Color)==16,"engine vector ABI");
-/* The stations' marks on the game's dial (marker_style), and on Townfall Companion's phone dial (publish_marks). */
-static const Color MARK_COLOUR={1,0,1,1};
+typedef struct { Color colour; uint8_t rule,pad[3]; } SlateColor;  /* rule 0: UseColor_Specified */
+_Static_assert(sizeof(Vec2)==16 && _Alignof(Vec2)==16 && sizeof(Color)==16 && _Alignof(Color)==16 &&
+               offsetof(SlateColor,rule)==16 && _Alignof(SlateColor)==16,"engine vector ABI");
+/* The stations' marks on the game's dial (marker_style), and on Townfall Companion's phone dial (publish_marks).
+ * The game tints each mark's brush in its signal colour (UpdateDisplaySignalImage) and Slate multiplies the image's
+ * own colour on top, so the mark's brush tint is replaced: magenta over the waypoint blue would come out blue. */
+static const SlateColor MARK_TINT={.colour={1,0,1,1},.rule=0};
 typedef struct { int32_t index,serial; } WeakObject;
 typedef struct { WeakObject source; unsigned char enemy,suppress,pad[2]; uint32_t state; float frequency; } SignalDisplay;
 typedef struct { char magic[8]; uint32_t count,reserved; uint64_t sources[TF_MAX_STATIONS]; } MarkerPacket;
@@ -357,7 +361,7 @@ static void marker_style(void *widget,const WeakObject *source) {
         WeakObject image_key,slot_key;
         memcpy(&image_key,entry+PV(NEEDLE_IMAGE),8); memcpy(&slot_key,entry+PV(NEEDLE_SLOT),8);
         void *marker_image=weak_get(&image_key),*slot=weak_get(&slot_key);
-        if (marker_image) FN(IMAGE_COLOR,void (*)(void *,const Color *))(marker_image,&MARK_COLOUR);
+        if (marker_image) FN(IMAGE_TINT,void (*)(void *,const SlateColor *))(marker_image,&MARK_TINT);
         float x=0;
         if (slot && read_memory((char *)slot+PV(SLOT_X),&x,4) && isfinite(x)) {
             /* Use the game's original marker size and baseline. Frequency assignment
@@ -413,7 +417,7 @@ static void publish_marks(void) {
     for (int i=0;i<config.count && valid_profile && used>0 && used<(int)sizeof(text);++i) {
         if (!config.stations[i].enabled) continue;
         used+=snprintf(text+used,sizeof(text)-(size_t)used,"%.6f %.3f %.3f %.3f\n",config.stations[i].frequency,
-            MARK_COLOUR.r,MARK_COLOUR.g,MARK_COLOUR.b);
+            MARK_TINT.colour.r,MARK_TINT.colour.g,MARK_TINT.colour.b);
     }
     if (used<=0 || used>=(int)sizeof(text)) return;
     HANDLE file=CreateFileW(path,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
